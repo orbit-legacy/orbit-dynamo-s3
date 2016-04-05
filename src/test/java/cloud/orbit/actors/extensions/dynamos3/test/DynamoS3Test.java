@@ -29,6 +29,7 @@
 package cloud.orbit.actors.extensions.dynamos3.test;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 import cloud.orbit.actors.Actor;
@@ -37,6 +38,7 @@ import cloud.orbit.actors.extensions.dynamodb.DynamoDBConfiguration;
 import cloud.orbit.actors.extensions.dynamos3.DynamoS3StorageExtension;
 import cloud.orbit.actors.extensions.s3.S3Configuration;
 import cloud.orbit.actors.test.StorageTest;
+import cloud.orbit.util.StringUtils;
 
 /**
  * Created by joe@bioware.com on 2016-04-05.
@@ -70,6 +72,9 @@ public class DynamoS3Test
     @Test
     public void testDynamoS3()
     {
+        Assume.assumeTrue(!StringUtils.equals(System.getenv("TRAVIS"), "true")
+                || StringUtils.equals(System.getenv("ORBIT_TEST_DYNAMOS3_ENABLED"), "true"));
+
         dynamoDBConfiguration = new DynamoDBConfiguration.Builder()
                 .withCredentialType(cloud.orbit.actors.extensions.dynamodb.AmazonCredentialType.DEFAULT_PROVIDER_CHAIN)
                 .build();
@@ -80,8 +85,17 @@ public class DynamoS3Test
 
         dynamoS3StorageExtension = new DynamoS3StorageExtension(dynamoDBConfiguration, s3Configuration);
 
-        dynamoS3StorageExtension.setS3BucketName("test-jhegarty");
-        dynamoS3StorageExtension.setDefaultDynamoTableName("test-jhegarty");
+        final String bucketName = System.getenv("ORBIT_TEST_S3_BUCKET");
+        if(StringUtils.isNotBlank(bucketName))
+        {
+            dynamoS3StorageExtension.setS3BucketName(bucketName);
+        }
+
+        final String tableName = System.getenv("ORBIT_TEST_DYNAMO_TABLE");
+        if(StringUtils.isNotBlank(tableName))
+        {
+            dynamoS3StorageExtension.setDefaultDynamoTableName(tableName);
+        }
 
         restartStage();
 
