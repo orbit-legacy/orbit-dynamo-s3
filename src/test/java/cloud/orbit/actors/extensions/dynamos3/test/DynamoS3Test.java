@@ -75,12 +75,20 @@ public class DynamoS3Test
         Assume.assumeTrue(!StringUtils.equals(System.getenv("TRAVIS"), "true")
                 || StringUtils.equals(System.getenv("ORBIT_TEST_DYNAMOS3_ENABLED"), "true"));
 
+        String awsRegion = System.getenv("AWS_DEFAULT_REGION");
+        if(StringUtils.isBlank(awsRegion))
+        {
+            awsRegion = "us-west-2";
+        }
+
         dynamoDBConfiguration = new DynamoDBConfiguration.Builder()
                 .withCredentialType(cloud.orbit.actors.extensions.dynamodb.AmazonCredentialType.DEFAULT_PROVIDER_CHAIN)
+                .withRegion(awsRegion)
                 .build();
 
         s3Configuration = new S3Configuration.Builder()
                 .withCredentialType(cloud.orbit.actors.extensions.s3.AmazonCredentialType.DEFAULT_PROVIDER_CHAIN)
+                .withRegion(awsRegion)
                 .build();
 
         dynamoS3StorageExtension = new DynamoS3StorageExtension(dynamoDBConfiguration, s3Configuration);
