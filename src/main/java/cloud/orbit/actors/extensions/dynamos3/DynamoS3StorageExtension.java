@@ -30,12 +30,9 @@ package cloud.orbit.actors.extensions.dynamos3;
 
 import com.ea.async.Async;
 
-import org.apache.commons.lang3.SerializationUtils;
-
 import com.amazonaws.AmazonServiceException;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -49,12 +46,7 @@ import cloud.orbit.actors.runtime.DefaultDescriptorFactory;
 import cloud.orbit.actors.runtime.RemoteReference;
 import cloud.orbit.concurrent.Task;
 import cloud.orbit.exception.UncheckedException;
-import cloud.orbit.util.ExceptionUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionException;
@@ -68,7 +60,7 @@ public class DynamoS3StorageExtension implements StorageExtension
 {
     static
     {
-        //Async.init();
+        Async.init();
     }
 
     public static class StateWrapper
@@ -169,18 +161,23 @@ public class DynamoS3StorageExtension implements StorageExtension
     {
         final StateWrapper wrapper = new StateWrapper(state);
 
-        final Boolean readRecord = dynamoDBStorageExtension.readState(reference, wrapper).join();
+        final Boolean readRecord = await(dynamoDBStorageExtension.readState(reference, wrapper));
 
-        List<Task> tasks = new ArrayList<>();
-
-        tasks.add(dynamoDBStorageExtension.clearState(reference, wrapper));
-
-        if(wrapper.isS3Pointer)
+        if(readRecord)
         {
-            tasks.add(s3StorageExtension.clearState(reference, state));
+            List<Task> tasks = new ArrayList<>();
+
+            tasks.add(dynamoDBStorageExtension.clearState(reference, wrapper));
+
+            if(wrapper.isS3Pointer)
+            {
+                tasks.add(s3StorageExtension.clearState(reference, state));
+            }
+
+            return Task.allOf(tasks);
         }
 
-        return Task.allOf(tasks);
+        return Task.done();
     }
 
     @Override
@@ -188,7 +185,7 @@ public class DynamoS3StorageExtension implements StorageExtension
     {
         final StateWrapper wrapper = new StateWrapper(state);
 
-        final Boolean readRecord = dynamoDBStorageExtension.readState(reference, wrapper).join();
+        final Boolean readRecord = await(dynamoDBStorageExtension.readState(reference, wrapper));
 
         if(readRecord)
         {
@@ -220,7 +217,7 @@ public class DynamoS3StorageExtension implements StorageExtension
 
         try
         {
-            dynamoDBStorageExtension.writeState(reference, wrapper).join();
+            await(dynamoDBStorageExtension.writeState(reference, wrapper));
 
             // Record is fine, we're done
             return Task.done();
