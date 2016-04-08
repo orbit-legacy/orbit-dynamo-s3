@@ -53,9 +53,6 @@ import java.util.concurrent.CompletionException;
 
 import static com.ea.async.Async.await;
 
-/**
- * Created by joe@bioware.com on 2016-04-05.
- */
 public class DynamoS3StorageExtension implements StorageExtension
 {
     static
@@ -73,11 +70,10 @@ public class DynamoS3StorageExtension implements StorageExtension
         public StateWrapper(Object state)
         {
             this.state = state;
-            isS3Pointer = false;
         }
 
         public Object state;
-        public boolean isS3Pointer;
+        public S3Location s3Location;
     }
 
     private String name = "default";
@@ -130,7 +126,7 @@ public class DynamoS3StorageExtension implements StorageExtension
 
         if(dynamoDBStorageExtension == null)
         {
-            dynamoDBStorageExtension = new DynamoDBStorageExtension(dynamoDBConfiguration);
+            dynamoDBStorageExtension = new DynamoS3DynamoStorageExtension(dynamoDBConfiguration);
             dynamoDBStorageExtension.setDefaultTableName(defaultDynamoTableName);
         }
 
@@ -169,7 +165,7 @@ public class DynamoS3StorageExtension implements StorageExtension
 
             tasks.add(dynamoDBStorageExtension.clearState(reference, wrapper));
 
-            if(wrapper.isS3Pointer)
+            if(wrapper.s3Location != null)
             {
                 tasks.add(s3StorageExtension.clearState(reference, state));
             }
@@ -189,7 +185,7 @@ public class DynamoS3StorageExtension implements StorageExtension
 
         if(readRecord)
         {
-            if(wrapper.isS3Pointer)
+            if(wrapper.s3Location != null)
             {
                 return s3StorageExtension.readState(reference, state);
             }
@@ -238,7 +234,9 @@ public class DynamoS3StorageExtension implements StorageExtension
         }
 
         // If we got here, we must be too big
-        wrapper.isS3Pointer = true;
+        wrapper.s3Location = new S3Location()
+                .withBucketName(s3StorageExtension.getBucketName())
+                .withS3ItemName(s3StorageExtension.generateDocumentId(reference));
         wrapper.state = null;
 
         // Write out record to S3 and pointer to Dynamo
