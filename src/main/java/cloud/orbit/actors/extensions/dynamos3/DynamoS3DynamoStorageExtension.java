@@ -56,6 +56,7 @@ public class DynamoS3DynamoStorageExtension extends DynamoDBStorageExtension
     protected Item generatePutItem(
             final RemoteReference<?> reference,
             final Object state,
+            final Class<?> stateClass,
             final String itemId,
             final ObjectMapper mapper)
     {
@@ -65,7 +66,7 @@ public class DynamoS3DynamoStorageExtension extends DynamoDBStorageExtension
             {
                 DynamoS3StorageExtension.StateWrapper wrapper = (DynamoS3StorageExtension.StateWrapper) state;
 
-                final Item item = super.generatePutItem(reference, wrapper.state, itemId, mapper);
+                final Item item = super.generatePutItem(reference, wrapper.state, stateClass, itemId, mapper);
 
                 if (wrapper.s3Location != null)
                 {
@@ -83,12 +84,16 @@ public class DynamoS3DynamoStorageExtension extends DynamoDBStorageExtension
         }
         else
         {
-            return super.generatePutItem(reference, state, itemId, mapper);
+            return super.generatePutItem(reference, state, stateClass, itemId, mapper);
         }
     }
 
     @Override
-    protected void readStateInternal(final Object state, final Item item, final ObjectMapper mapper)
+    protected void readStateInternal(
+            final Object state,
+            final Class<?> stateClass,
+            final Item item,
+            final ObjectMapper mapper)
     {
         if (state instanceof DynamoS3StorageExtension.StateWrapper)
         {
@@ -105,7 +110,7 @@ public class DynamoS3DynamoStorageExtension extends DynamoDBStorageExtension
                 else
                 {
                     stateWrapper.s3Location = null;
-                    super.readStateInternal(stateWrapper.state, item, mapper);
+                    super.readStateInternal(stateWrapper.state, stateClass, item, mapper);
                 }
             }
             catch (IOException e)
@@ -115,7 +120,7 @@ public class DynamoS3DynamoStorageExtension extends DynamoDBStorageExtension
         }
         else
         {
-            super.readStateInternal(state, item, mapper);
+            super.readStateInternal(state, stateClass, item, mapper);
         }
     }
 }

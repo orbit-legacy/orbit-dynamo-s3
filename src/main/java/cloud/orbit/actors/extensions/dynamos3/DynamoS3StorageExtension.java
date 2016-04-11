@@ -157,13 +157,13 @@ public class DynamoS3StorageExtension implements StorageExtension
     {
         final StateWrapper wrapper = new StateWrapper(state);
 
-        final Boolean readRecord = await(dynamoDBStorageExtension.readState(reference, wrapper));
+        final Boolean readRecord = await(dynamoDBStorageExtension.readState(reference, wrapper, state.getClass()));
 
         if(readRecord)
         {
             List<Task> tasks = new ArrayList<>();
 
-            tasks.add(dynamoDBStorageExtension.clearState(reference, wrapper));
+            tasks.add(dynamoDBStorageExtension.clearState(reference, wrapper, state.getClass()));
 
             if(wrapper.s3Location != null)
             {
@@ -181,7 +181,7 @@ public class DynamoS3StorageExtension implements StorageExtension
     {
         final StateWrapper wrapper = new StateWrapper(state);
 
-        final Boolean readRecord = await(dynamoDBStorageExtension.readState(reference, wrapper));
+        final Boolean readRecord = await(dynamoDBStorageExtension.readState(reference, wrapper, state.getClass()));
 
         if(readRecord)
         {
@@ -213,7 +213,7 @@ public class DynamoS3StorageExtension implements StorageExtension
 
         try
         {
-            await(dynamoDBStorageExtension.writeState(reference, wrapper));
+            await(dynamoDBStorageExtension.writeState(reference, wrapper, state.getClass()));
 
             // Record is fine, we're done
             return Task.done();
@@ -241,7 +241,7 @@ public class DynamoS3StorageExtension implements StorageExtension
 
         // Write out record to S3 and pointer to Dynamo
         Task s3Write = s3StorageExtension.writeState(reference, state);
-        Task dynamoWrite = dynamoDBStorageExtension.writeState(reference, wrapper);
+        Task dynamoWrite = dynamoDBStorageExtension.writeState(reference, wrapper, state.getClass());
 
         return Task.allOf(s3Write, dynamoWrite);
     }

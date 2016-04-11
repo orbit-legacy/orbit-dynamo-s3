@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     <properties>
         <orbit.version>0.8.0</orbit.version>
-        <orbit.dynamodb.version>0.8.1</orbit.dynamodb.version>
+        <orbit.dynamodb.version>0.8.2</orbit.dynamodb.version>
         <orbit.s3.version>0.8.0</orbit.s3.version>
         <ea.async.version>1.0.2</ea.async.version>
     </properties>
@@ -84,7 +84,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <artifactId>commons-lang3</artifactId>
             <version>3.4</version>
         </dependency>
-        
+
         <dependency>
             <groupId>cloud.orbit</groupId>
             <artifactId>orbit-actor-tests</artifactId>
