@@ -37,14 +37,11 @@ import cloud.orbit.actors.Stage;
 import cloud.orbit.actors.extensions.dynamodb.DynamoDBConfiguration;
 import cloud.orbit.actors.extensions.dynamos3.DynamoS3StorageExtension;
 import cloud.orbit.actors.extensions.s3.S3Configuration;
-import cloud.orbit.actors.test.StorageTest;
 import cloud.orbit.util.StringUtils;
 
-/**
- * Created by joe@bioware.com on 2016-04-05.
- */
 public class DynamoS3Test
 {
+    protected static final String DEFAULT_TABLE_NAME = "orbit-ci-test";
     private static final String ACTOR_ID_SHORT = "ShortTestActor";
     private static final String ACTOR_ID_LONG = "LongTstActor";
 
@@ -99,7 +96,7 @@ public class DynamoS3Test
             dynamoS3StorageExtension.setS3BucketName(bucketName);
         }
 
-        final String tableName = System.getenv("ORBIT_TEST_DYNAMO_TABLE");
+        final String tableName = StringUtils.defaultIfBlank(System.getenv("ORBIT_TEST_DYNAMO_TABLE"), DEFAULT_TABLE_NAME);
         if(StringUtils.isNotBlank(tableName))
         {
             dynamoS3StorageExtension.setDefaultDynamoTableName(tableName);

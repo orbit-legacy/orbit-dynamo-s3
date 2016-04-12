@@ -129,13 +129,11 @@ public abstract class BaseDynamoDBS3PersistenceTest extends StorageBaseTest
                 dynamoS3StorageExtension.setS3BucketName(bucketName);
             }
 
-            final String tableName = System.getenv("ORBIT_TEST_DYNAMO_TABLE");
+            final String tableName = StringUtils.defaultIfBlank(System.getenv("ORBIT_TEST_DYNAMO_TABLE"), DEFAULT_TABLE_NAME);
             if (StringUtils.isNotBlank(tableName))
             {
                 dynamoS3StorageExtension.setDefaultDynamoTableName(tableName);
             }
-
-            dynamoS3StorageExtension.setDefaultDynamoTableName(DEFAULT_TABLE_NAME);
         }
 
         return dynamoS3StorageExtension;
