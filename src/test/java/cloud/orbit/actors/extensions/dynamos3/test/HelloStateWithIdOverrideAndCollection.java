@@ -30,7 +30,7 @@ package cloud.orbit.actors.extensions.dynamos3.test;
 
 import cloud.orbit.actors.extensions.dynamodb.DynamoDBStateConfiguration;
 
-@DynamoDBStateConfiguration(collection = "helloIdAndCollection", idDecorationOverride = "3W2rQqmuuYPKznDYNNn3GB")
+@DynamoDBStateConfiguration(collection = "orbit-ci-test-helloIdAndCollection", idDecorationOverride = "3W2rQqmuuYPKznDYNNn3GB")
 public class HelloStateWithIdOverrideAndCollection extends HelloState
 {
 }

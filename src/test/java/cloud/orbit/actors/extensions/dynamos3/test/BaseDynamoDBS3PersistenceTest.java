@@ -70,7 +70,7 @@ import static org.junit.Assert.*;
 
 public abstract class BaseDynamoDBS3PersistenceTest extends StorageBaseTest
 {
-    protected static final String DEFAULT_TABLE_NAME = "orbit-test";
+    protected static final String DEFAULT_TABLE_NAME = "orbit-ci-test";
     protected static final String TEST_STRING_LONG = new String(new char[3000000]).replace("\0", "X");
 
     private DynamoDBConnection dynamoDBConnection;
